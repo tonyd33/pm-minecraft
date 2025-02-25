@@ -26,10 +26,11 @@ resource "porkbun_dns_record" "mc_velocity" {
   content = linode_instance.mc_velocity.ip_address
 }
 
+# These should probably be CNAMEs but w/e
 resource "porkbun_dns_record" "mc_extra_domains" {
   for_each = toset(local.extra_domains)
   domain = "gnomes.moe"
-  type = "CNAME"
+  type = "A"
   name = each.key
-  content = porkbun_dns_record.mc_velocity.name
+  content = linode_instance.mc_velocity.ip_address
 }

@@ -14,29 +14,36 @@ x-mc: &mc
 services:
   velocity:
     image: endkind/velocity:latest
+    hostname: velocity
+    container_name: velocity
     stdin_open: true
     tty: true
     ports:
       - 25565:25565
-    container_name: endkind-velocity
     volumes:
       - ./velocity:/velocity
     environment:
       - MAX_RAM=1G
-    restart: always
+    restart: unless-stopped
     networks:
       - minecraft
 
   mc-1:
     <<: *mc
+    hostname: mc-1
+    container_name: mc-1
     ports:
-      - "25566:25565"
+      - 25566:25565
     volumes:
+      # attach the relative directory 'data' to the container's /data path
       - ./mc-1:/data
 
   mc-2:
     <<: *mc
+    hostname: mc-2
+    container_name: mc-2
     ports:
-      - "25567:25565"
+      - 25567:25565
     volumes:
+      # attach the relative directory 'data' to the container's /data path
       - ./mc-2:/data
