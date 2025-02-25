@@ -1,0 +1,5 @@
+credentials.auto.tfvars
+terraform.tfstate*
+.terraform/
+.terraform.lock.hcl
+.terraform.tfstate.lock.info
