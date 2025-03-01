@@ -1,0 +1,23 @@
+---
+- name: Disable password-based authentication
+  become: true
+  lineinfile:
+    path: "/etc/ssh/sshd_config"
+    regexp: '^(.*)PasswordAuthentication yes(.*)$'
+    line: 'PasswordAuthentication no'
+  register: passwordauthentication
+
+- name: Enable public key authentication in SSH
+  become: true
+  lineinfile:
+    path: "/etc/ssh/sshd_config"
+    regexp: '^(.*)PubkeyAuthentication(.*)$'
+    line: 'PubkeyAuthentication yes'
+  register: publickeyauthentication
+
+- name: Restart SSH
+  become: true
+  service:
+    name: ssh
+    state: restarted
+  when: passwordauthentication.changed or publickeyauthentication.changed

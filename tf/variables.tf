@@ -17,3 +17,27 @@ variable "porkbun_secret_key" {
   sensitive = true
 }
 
+variable "domain" {
+  type = string
+}
+
+variable "manager_count" {
+  type = number
+}
+
+variable "manager_type" {
+  type = string
+}
+
+variable "worker_count" {
+  type = number
+}
+
+variable "worker_type" {
+  type = string
+}
+
+variable "region" {
+  type = string
+  default = "us-sea"
+}

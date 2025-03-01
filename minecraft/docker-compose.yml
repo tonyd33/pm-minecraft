@@ -2,18 +2,21 @@ networks:
   minecraft:
     name: minecraft
 
-x-mc: &mc
-  image: itzg/minecraft-server
+x-paper: &paper
+  image: docker.io/tonyd33/papermc-docker
   tty: true
   stdin_open: true
   environment:
-    EULA: "TRUE"
+    EULA: "true"
+    MC_VERSION: "1.21.4"
+    PAPER_BUILD: "187"
+    URL: "https://api.papermc.io/v2/projects/paper"
   networks:
     - minecraft
 
 services:
   velocity:
-    image: endkind/velocity:latest
+    image: docker.io/endkind/velocity:latest
     hostname: velocity
     container_name: velocity
     stdin_open: true
@@ -28,22 +31,14 @@ services:
     networks:
       - minecraft
 
-  mc-1:
-    <<: *mc
-    hostname: mc-1
-    container_name: mc-1
+  paper-1:
+    <<: *paper
+    hostname: paper-1
+    # Disable this when deploying, connections should be made through the
+    # velocity proxy.
     ports:
       - 25566:25565
     volumes:
-      # attach the relative directory 'data' to the container's /data path
-      - ./mc-1:/data
-
-  mc-2:
-    <<: *mc
-    hostname: mc-2
-    container_name: mc-2
-    ports:
-      - 25567:25565
-    volumes:
-      # attach the relative directory 'data' to the container's /data path
-      - ./mc-2:/data
+      - ./paper-1:/papermc
+    networks:
+      - minecraft

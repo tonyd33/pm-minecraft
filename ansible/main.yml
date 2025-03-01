@@ -1,0 +1,11 @@
+---
+- name: Set up swarm
+  hosts: swarm
+  pre_tasks:
+    - name: Ensure VPC subnet address is sane
+      assert:
+        that: ansible_all_ipv4_addresses | ansible.utils.ipaddr(vpc_subnet) | length == 1
+        msg: Expected one ip address in the vpc subnet
+  roles:
+    - common
+    - docker-swarm

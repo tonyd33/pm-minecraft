@@ -1,0 +1,34 @@
+---
+- name: Create groups
+  group:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - wheel
+    - docker
+
+- name: Make users passwordless for sudo in group wheel
+  lineinfile:
+    path: /etc/sudoers
+    state: present
+    regexp: '^%wheel'
+    line: '%wheel ALL=(ALL) NOPASSWD: ALL'
+    validate: 'visudo -cf %s'
+
+- name: Add users
+  user:
+    name: "{{ item.name }}"
+    state: present
+    shell: /usr/bin/bash
+    groups:
+      - docker
+      - wheel
+  loop: "{{ users }}"
+
+- name: Add SSH key to user's authorized keys
+  authorized_key:
+    user: "{{ item.name }}"
+    state: present
+    key: "https://github.com/{{ item.github }}.keys"
+  loop: "{{ users }}"
+

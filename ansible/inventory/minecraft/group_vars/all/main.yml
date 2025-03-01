@@ -1,0 +1,12 @@
+# We should ensure that this doesn't collide with the VPC subnet we allocate the
+# swarm but eh...
+# TODO: Ensure no subnet collision
+swarm_addr_pool:
+  - 172.18.0.0/16
+  - 172.19.0.0/16
+
+users:
+  - name: tony
+    github: tonyd33
+  - name: pm
+    github: PastMoments

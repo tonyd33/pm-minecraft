@@ -1,0 +1,50 @@
+---
+- name: Set variables
+  set_fact:
+    vpc_subnet_ip: "{{ ansible_all_ipv4_addresses | ansible.utils.ipaddr(vpc_subnet) | first }}"
+
+- name: Init swarm
+  when: inventory_hostname == groups.swarm_manager[0]
+  docker_swarm:
+    state: present
+    advertise_addr: "{{ vpc_subnet_ip }}"
+    default_addr_pool: "{{ swarm_addr_pool }}"
+  register: manager_swarm_facts
+
+- when: inventory_hostname == groups.swarm_manager[0]
+  set_fact:
+    worker_join_token: "{{manager_swarm_facts.swarm_facts.JoinTokens.Worker}}"
+    manager_join_token: "{{manager_swarm_facts.swarm_facts.JoinTokens.Manager}}"
+
+- name: Create ingress network
+  when: inventory_hostname == groups.swarm_manager[0]
+  become: true
+  docker_network:
+    name: ingress
+    driver: overlay
+    ingress: true
+    scope: swarm
+    ipam_config:
+      - subnet: 10.8.0.0/16
+        gateway: 10.8.0.1
+    driver_options:
+      com.docker.network.driver.overlay.vxlanid_list: 4096
+
+- name: Join swarm as managers
+  when: inventory_hostname in groups.swarm_manager and inventory_hostname != groups.swarm_manager[0]
+  become: true
+  docker_swarm:
+    state: join
+    join_token: "{{ hostvars[groups.swarm_manager[0]].manager_join_token }}"
+    advertise_addr: "{{ vpc_subnet_ip }}"
+    remote_addrs: ["{{ hostvars[groups.swarm_manager[0]].vpc_subnet_ip }}"]
+
+- name: Join swarm as workers
+  when: inventory_hostname in groups.swarm_worker
+  become: true
+  docker_swarm:
+    state: join
+    join_token: "{{ hostvars[groups.swarm_manager[0]].worker_join_token }}"
+    advertise_addr: "{{ vpc_subnet_ip }}"
+    remote_addrs: ["{{ hostvars[groups.swarm_manager[0]].vpc_subnet_ip }}"]
+

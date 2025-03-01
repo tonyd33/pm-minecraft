@@ -1,0 +1,23 @@
+---
+- name: Create docker directory
+  file:
+    path: /etc/docker
+    state: directory
+    mode: 755
+
+- name: Update Docker daemon settings
+  copy:
+    content: |
+      {
+        "metrics-addr": "0.0.0.0:9323",
+        "experimental": true
+      }
+    dest: /etc/docker/daemon.json
+  register: docker_settings
+
+- name: Restart docker
+  service:
+    name: docker
+    state: restarted
+  when: docker_settings.changed
+
