@@ -15,30 +15,46 @@ x-paper: &paper
     - minecraft
 
 services:
-  velocity:
-    image: docker.io/endkind/velocity:latest
-    hostname: velocity
-    container_name: velocity
-    stdin_open: true
-    tty: true
-    ports:
-      - 25565:25565
-    volumes:
-      - ./velocity:/velocity
-    environment:
-      - MAX_RAM=1G
-    restart: unless-stopped
-    networks:
-      - minecraft
+  # velocity:
+    # image: docker.io/endkind/velocity:3.4.0-SNAPSHOT
+    # hostname: velocity
+    # stdin_open: true
+    # tty: true
+    # ports:
+      # - 25565:25565
+    # volumes:
+      # - ./velocity:/velocity
+    # environment:
+      # - MAX_RAM=1G
+    # restart: unless-stopped
+    # networks:
+      # - minecraft
 
-  paper-1:
-    <<: *paper
-    hostname: paper-1
-    # Disable this when deploying, connections should be made through the
-    # velocity proxy.
-    ports:
-      - 25566:25565
-    volumes:
-      - ./paper-1:/papermc
+  http:
+    image: docker.io/library/python:3.14.0a5-alpine3.20
+    hostname: http
     networks:
       - minecraft
+    command:
+      - python
+      - -m
+      - http.server
+      - -d
+      - /public
+      - 8080
+    ports:
+      - 8080:8080
+    volumes:
+      - ./http-public:/public
+
+  # paper-1:
+    # <<: *paper
+    # hostname: paper-1
+    # # Disable this when deploying, connections should be made through the
+    # # velocity proxy.
+    # ports:
+      # - 25566:25565
+    # volumes:
+      # - ./paper-1:/papermc
+    # networks:
+      # - minecraft
